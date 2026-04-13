@@ -54,7 +54,16 @@ update_helm_release() {
 
 function build_service() {
     image="$1"
-    echo "BUILDING $image"
+
+    # Sourcing build customize scripts
+    for file in ./build_init_*; do
+        if [ -f "$file" ]; then
+            echo "Sourcing $file"
+            source "$file"
+        fi
+    done
+
+    echo "BUILDING $image ${image_tag}"
     docker build -t ${DOCKER_REPO:-'local'}/$image:${image_tag} --platform $arch --build-arg ARCH=$arch --build-arg SERVICE_NAME=$image --build-arg GIT_SHA=$git_sha .
     [[ $PUSH_IMAGE -eq 1 ]] && {
         docker push ${DOCKER_REPO:-'local'}/$image:${image_tag}
@@ -77,6 +86,7 @@ function build_api() {
     }
     cp -R ../backend ../${destination}
     cd ../${destination}
+
     # Copy enterprise code
     [[ $1 == "ee" ]] && {
         cp -r ../ee/backend/* ./
