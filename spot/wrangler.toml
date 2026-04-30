@@ -1,2 +1,5 @@
+name = "openreplay"
+compatibility_date = "2026-04-30"
+
 [assets]
 directory = ".output/chrome-mv3"
